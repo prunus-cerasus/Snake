@@ -8,7 +8,7 @@ enum class EntityType {
     PlayerHead,
     PlayerBody,
     Apple,
-    Stone,
+    Rock,
 };
 
 struct Entity {

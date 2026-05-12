@@ -5,7 +5,7 @@
 
 class Timer {
 public:
-    Timer(int64_t p_interval) {}
+    Timer(int64_t p_interval);
     void reset();
     bool step(int64_t p_deltaTime);
 private:

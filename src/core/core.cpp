@@ -13,16 +13,65 @@ namespace gamespecs {
     constexpr int HEIGHT {30};
     constexpr float CELL_SIDE {20.0f};
     constexpr int64_t MOVEMENT_TIME {600'000'000};
+
+    constexpr SDL_Color DRAWCOLOR_SNAKE_HEAD {
+        .r = 0x00,
+        .g = 0xff,
+        .b = 0x00,
+        .a = 0xff,
+    };
+
+    constexpr SDL_Color DRAWCOLOR_SNAKE_BODY {
+        .r = 0x00,
+        .g = 0x9f,
+        .b = 0x00,
+        .a = 0xff,
+    };
+
+    constexpr SDL_Color DRAWCOLOR_APPLE {
+        .r = 0xff,
+        .g = 0x00,
+        .b = 0x00,
+        .a = 0xff,
+    };
+
+    constexpr SDL_Color DRAWCOLOR_ROCK {
+        .r = 0xa0,
+        .g = 0xa0,
+        .b = 0xa0,
+        .a = 0xff,
+    };
 };
 
-void drawEntity(SDLState& p_sdl, Entity& p_obj) {
+void drawEntity(SDLState& p_sdl, const Entity& p_obj) {
+    SDL_Color dcolor{};
+    switch(p_obj.type) {
+        case EntityType::PlayerHead:
+            dcolor = gamespecs::DRAWCOLOR_SNAKE_HEAD;
+        break;
+
+        case EntityType::PlayerBody:
+            dcolor = gamespecs::DRAWCOLOR_SNAKE_BODY;
+        break;
+
+        case EntityType::Apple:
+            dcolor = gamespecs::DRAWCOLOR_APPLE;
+        break;
+
+        case EntityType::Rock:
+            dcolor = gamespecs::DRAWCOLOR_ROCK;
+        break;
+    }
+
+    SDL_SetRenderDrawColor(p_sdl.getRenderer(), dcolor.r, dcolor.g, dcolor.b, dcolor.a);
+
     SDL_FRect dest{
         .x = gamespecs::CELL_SIDE*p_obj.pos.x+1,
         .y = gamespecs::CELL_SIDE*p_obj.pos.y+1,
         .w = gamespecs::CELL_SIDE-1,
         .h = gamespecs::CELL_SIDE-1,
     };
-    SDL_RenderFillRect(p_sdl.get_renderer(), &dest);
+    SDL_RenderFillRect(p_sdl.getRenderer(), &dest);
 }
 
 struct GameState {
@@ -48,7 +97,7 @@ struct GameState {
 };
 
 void logic(SDLState& p_sdl, GameState& p_game) {
-    p_sdl.get_window();
+    p_sdl.getWindow();
     SDL_Time currentTime;
     SDL_GetCurrentTime(&currentTime);
     if (p_game.previousTime == 0) p_game.previousTime = currentTime;
@@ -122,24 +171,21 @@ void logic(SDLState& p_sdl, GameState& p_game) {
 }
 
 void render(SDLState& p_sdl, GameState& p_game) {
-    SDL_SetRenderDrawColor(p_sdl.get_renderer(), 0, 0, 0, 0);
-    SDL_RenderClear(p_sdl.get_renderer());
+    SDL_SetRenderDrawColor(p_sdl.getRenderer(), 0, 0, 0, 0);
+    SDL_RenderClear(p_sdl.getRenderer());
 
-    SDL_SetRenderDrawColor(p_sdl.get_renderer(), 0, 150, 0, 0);
-    for (size_t snake_body_idx : p_game.player.body) {
-        drawEntity(p_sdl, p_game.entities[snake_body_idx]);
+    for (const auto& entity : p_game.entities) {
+        drawEntity(p_sdl, entity);
     }
 
-    SDL_SetRenderDrawColor(p_sdl.get_renderer(), 0, 255, 0, 0);
-    drawEntity(p_sdl, p_game.entities[p_game.player.head]);
-
-
-    SDL_RenderPresent(p_sdl.get_renderer());
+    SDL_RenderPresent(p_sdl.getRenderer());
 }
 
 void loop(SDLState& p_sdl) {
     GameState game;
     game.entities[game.player.head].pos = {.x = gamespecs::WIDTH/2, .y = gamespecs::HEIGHT/2};
+    // game.entities.emplace_back(1, 1, EntityType::Apple);
+    // for (int i = 0; i < 6; i++) game.increasePlayer();
 
     while (game.isRunning) {
         logic(p_sdl, game);

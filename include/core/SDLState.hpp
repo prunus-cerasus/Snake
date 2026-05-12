@@ -10,8 +10,8 @@ public:
     SDLState(SDLState&&) noexcept;
     ~SDLState();
     bool valid();
-    SDL_Window* get_window() const noexcept;
-    SDL_Renderer* get_renderer() const noexcept;
+    SDL_Window* getWindow() const noexcept;
+    SDL_Renderer* getRenderer() const noexcept;
 private:
     SDL_Window* m_window;
     SDL_Renderer* m_renderer;

@@ -32,10 +32,10 @@ bool SDLState::valid() {
     return m_window != nullptr && m_renderer != nullptr;
 }
 
-SDL_Window* SDLState::get_window() const noexcept {
+SDL_Window* SDLState::getWindow() const noexcept {
     return m_window;
 }
 
-SDL_Renderer* SDLState::get_renderer() const noexcept {
+SDL_Renderer* SDLState::getRenderer() const noexcept {
     return m_renderer;
 }
