@@ -9,7 +9,7 @@ namespace gamespecs {
     // constexpr int WIDTH {40};
     // constexpr int HEIGHT {30};
     constexpr float CELL_SIDE {20.0f};
-    constexpr int64_t MOVEMENT_TIME {1'000'000'000};
+    constexpr int64_t MOVEMENT_TIME {600'000'000};
 };
 
 struct vec2 {
@@ -95,6 +95,11 @@ struct GameState {
     GameState() : isRunning(true), deltaTime(0L), previousTime(0L), keyState(SDL_GetKeyboardState(&numkeys)), movePlayer(gamespecs::MOVEMENT_TIME) {
         entities.emplace_back(0, 0, EntityType::PlayerHead);
     }
+
+    void increasePlayer() {
+        entities.emplace_back(-1, -1, EntityType::PlayerBody);
+        player.body.emplace_back(entities.size()-1);
+    }
 };
 
 void logic(SDLState& p_sdl, GameState& p_game) {
@@ -131,34 +136,38 @@ void logic(SDLState& p_sdl, GameState& p_game) {
         };
         switch (p_game.player.direction) {
             case PlayerDirection::Up: {
-                for (size_t i{}; i < p_game.player.body.size(); i++) {
-                    Entity& e{GetBodyReversed(i)};
-                    e.pos.y--;
+                if (p_game.player.body.size() > 0) for (size_t i{}; i < p_game.player.body.size()-1; i++) {
+                    GetBodyReversed(i).pos = GetBodyReversed(i+1).pos;
                 }
+                if (p_game.player.body.size() > 0)
+                    GetBodyReversed(p_game.player.body.size()-1).pos = p_game.entities[p_game.player.head].pos;
                 p_game.entities[p_game.player.head].pos.y--;
                 break;
             }
             case PlayerDirection::Down: {
-                for (size_t i{}; i < p_game.player.body.size(); i++) {
-                    Entity& e{GetBodyReversed(i)};
-                    e.pos.y++;
+                if (p_game.player.body.size() > 0) for (size_t i{}; i < p_game.player.body.size()-1; i++) {
+                    GetBodyReversed(i).pos = GetBodyReversed(i+1).pos;
                 }
+                if (p_game.player.body.size() > 0)
+                    GetBodyReversed(p_game.player.body.size()-1).pos = p_game.entities[p_game.player.head].pos;
                 p_game.entities[p_game.player.head].pos.y++;
                 break;
             }
             case PlayerDirection::Left: {
-                for (size_t i{}; i < p_game.player.body.size(); i++) {
-                    Entity& e{GetBodyReversed(i)};
-                    e.pos.x--;
+                if (p_game.player.body.size() > 0) for (size_t i{}; i < p_game.player.body.size()-1; i++) {
+                    GetBodyReversed(i).pos = GetBodyReversed(i+1).pos;
                 }
+                if (p_game.player.body.size() > 0)
+                    GetBodyReversed(p_game.player.body.size()-1).pos = p_game.entities[p_game.player.head].pos;
                 p_game.entities[p_game.player.head].pos.x--;
                 break;
             }
             case PlayerDirection::Right: {
-                for (size_t i{}; i < p_game.player.body.size(); i++) {
-                    Entity& e{GetBodyReversed(i)};
-                    e.pos.x++;
+                if (p_game.player.body.size() > 0) for (size_t i{}; i < p_game.player.body.size()-1; i++) {
+                    GetBodyReversed(i).pos = GetBodyReversed(i+1).pos;
                 }
+                if (p_game.player.body.size() > 0)
+                    GetBodyReversed(p_game.player.body.size()-1).pos = p_game.entities[p_game.player.head].pos;
                 p_game.entities[p_game.player.head].pos.x++;
                 break;
             }
@@ -171,9 +180,14 @@ void render(SDLState& p_sdl, GameState& p_game) {
     SDL_SetRenderDrawColor(p_sdl.get_renderer(), 0, 0, 0, 0);
     SDL_RenderClear(p_sdl.get_renderer());
 
+    SDL_SetRenderDrawColor(p_sdl.get_renderer(), 0, 150, 0, 0);
+    for (size_t snake_body_idx : p_game.player.body) {
+        p_game.entities[snake_body_idx].draw(p_sdl);
+    }
+
     SDL_SetRenderDrawColor(p_sdl.get_renderer(), 0, 255, 0, 0);
     p_game.entities[p_game.player.head].draw(p_sdl);
-    // std::clog << "Rendered...\n";
+
 
     SDL_RenderPresent(p_sdl.get_renderer());
 }
@@ -181,6 +195,7 @@ void render(SDLState& p_sdl, GameState& p_game) {
 void loop(SDLState& p_sdl) {
     GameState game;
     game.entities[game.player.head].pos = {.x = 20, .y = 15};
+
     while (game.isRunning) {
         logic(p_sdl, game);
         render(p_sdl, game);
