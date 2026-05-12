@@ -1,84 +1,29 @@
 #include <iostream>
-#include <cstdint>
-#include <vector>
 
 #include "SDL3/SDL.h"
+
 #include "core/SDLState.hpp"
+#include "core/Timer.hpp"
+#include "core/vec2.hpp"
+#include "core/Entity.hpp"
+#include "core/Player.hpp"
 
 namespace gamespecs {
-    // constexpr int WIDTH {40};
-    // constexpr int HEIGHT {30};
+    constexpr int WIDTH {40};
+    constexpr int HEIGHT {30};
     constexpr float CELL_SIDE {20.0f};
     constexpr int64_t MOVEMENT_TIME {600'000'000};
 };
 
-struct vec2 {
-    int x;
-    int y;
-};
-
-enum class EntityType {
-    PlayerHead,
-    PlayerBody,
-    Apple,
-    Stone,
-};
-
-struct Entity {
-    vec2 pos;
-    EntityType type;
-
-    Entity(int p_x = 0, int p_y = 0, EntityType p_type = EntityType::PlayerHead) : pos({p_x, p_y}), type(p_type) {
-
-    }
-
-    void draw(SDLState& p_sdl) {
-        SDL_FRect dest{
-            .x = gamespecs::CELL_SIDE*pos.x+1,
-            .y = gamespecs::CELL_SIDE*pos.y+1,
-            .w = gamespecs::CELL_SIDE-1,
-            .h = gamespecs::CELL_SIDE-1,
-        };
-        SDL_RenderFillRect(p_sdl.get_renderer(), &dest);
-    }
-};
-
-enum class PlayerDirection {
-    Up,
-    Left,
-    Down,
-    Right,
-};
-
-struct Player {
-    size_t head;
-    std::vector<size_t> body;
-    PlayerDirection direction;
-
-    Player(size_t p_head = 0, size_t p_body_size = 0) : head(p_head), body(p_body_size), direction(PlayerDirection::Up) {
-
-    }
-};
-
-class Timer {
-    int64_t timer;
-    int64_t interval;
-    bool isDone;
-public:
-    Timer(int64_t p_interval) : timer(0L), interval(p_interval), isDone(false) {}
-    void Reset() {
-        timer -= interval;
-        isDone = false;
-    }
-
-    bool Step(int64_t p_deltaTime) {
-        timer += p_deltaTime;
-        if (timer >= interval) {
-            isDone = true;
-        }
-        return isDone;
-    }
-};
+void drawEntity(SDLState& p_sdl, Entity& p_obj) {
+    SDL_FRect dest{
+        .x = gamespecs::CELL_SIDE*p_obj.pos.x+1,
+        .y = gamespecs::CELL_SIDE*p_obj.pos.y+1,
+        .w = gamespecs::CELL_SIDE-1,
+        .h = gamespecs::CELL_SIDE-1,
+    };
+    SDL_RenderFillRect(p_sdl.get_renderer(), &dest);
+}
 
 struct GameState {
     bool isRunning;
@@ -115,8 +60,8 @@ void logic(SDLState& p_sdl, GameState& p_game) {
         if (ev.type == SDL_EVENT_QUIT) p_game.isRunning = false;
     }
 
-    if (p_game.movePlayer.Step(p_game.deltaTime)) {
-        p_game.movePlayer.Reset();
+    if (p_game.movePlayer.step(p_game.deltaTime)) {
+        p_game.movePlayer.reset();
         if (p_game.player.direction == PlayerDirection::Up || p_game.player.direction == PlayerDirection::Down) {
             int dir = -p_game.keyState[SDL_SCANCODE_A];
             dir += p_game.keyState[SDL_SCANCODE_D];
@@ -182,11 +127,11 @@ void render(SDLState& p_sdl, GameState& p_game) {
 
     SDL_SetRenderDrawColor(p_sdl.get_renderer(), 0, 150, 0, 0);
     for (size_t snake_body_idx : p_game.player.body) {
-        p_game.entities[snake_body_idx].draw(p_sdl);
+        drawEntity(p_sdl, p_game.entities[snake_body_idx]);
     }
 
     SDL_SetRenderDrawColor(p_sdl.get_renderer(), 0, 255, 0, 0);
-    p_game.entities[p_game.player.head].draw(p_sdl);
+    drawEntity(p_sdl, p_game.entities[p_game.player.head]);
 
 
     SDL_RenderPresent(p_sdl.get_renderer());
@@ -194,7 +139,7 @@ void render(SDLState& p_sdl, GameState& p_game) {
 
 void loop(SDLState& p_sdl) {
     GameState game;
-    game.entities[game.player.head].pos = {.x = 20, .y = 15};
+    game.entities[game.player.head].pos = {.x = gamespecs::WIDTH/2, .y = gamespecs::HEIGHT/2};
 
     while (game.isRunning) {
         logic(p_sdl, game);

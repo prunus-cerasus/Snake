@@ -1,4 +1,10 @@
-add_library(${PROJECT_NAME}_core STATIC core.cpp SDLState.cpp)
+set(core_SOURCES
+    core.cpp
+    SDLState.cpp
+    Timer.cpp
+)
+
+add_library(${PROJECT_NAME}_core STATIC ${core_SOURCES})
 target_include_directories(${PROJECT_NAME}_core PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(${PROJECT_NAME}_core PUBLIC project_deps)
 
