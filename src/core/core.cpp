@@ -34,9 +34,9 @@ namespace gamespecs {
             .a = 0xff,
         },
         {
-            .r = 0xff,
-            .g = 0x00,
-            .b = 0x00,
+            .r = 0xaf,
+            .g = 0xaf,
+            .b = 0xaf,
             .a = 0xff,
         },
     };
@@ -170,6 +170,7 @@ void loop(SDLState& p_sdl) {
     GameState game;
     game.entities[game.player.head].pos = {.x = gamespecs::WIDTH/2, .y = gamespecs::HEIGHT/2};
     game.entities.emplace_back(1, 1, EntityType::Apple);
+    game.entities.emplace_back(3, 1, EntityType::Rock);
     for (int32_t i = 0; i < 10; i++) game.increasePlayer();
 
     while (game.isRunning) {
