@@ -1,5 +1,5 @@
-#ifndef __SDLSTATE_HPP__
-#define __SDLSTATE_HPP__
+#ifndef SDLSTATE_HPP
+#define SDLSTATE_HPP
 
 #include "SDL3/SDL.h"
 
@@ -7,6 +7,8 @@ class SDLState {
 public:
     SDLState();
     SDLState(const SDLState&) = delete;
+    SDLState& operator=(const SDLState&) = delete;
+    SDLState& operator=(SDLState&&) = delete;
     SDLState(SDLState&&) noexcept;
     ~SDLState();
     bool valid();
@@ -17,4 +19,4 @@ private:
     SDL_Renderer* m_renderer;
 };
 
-#endif // __SDLSTATE_HPP__
+#endif // SDLSTATE_HPP

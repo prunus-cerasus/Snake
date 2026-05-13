@@ -1,9 +1,9 @@
-#ifndef __VEC2_HPP__
-#define __VEC2_HPP__
+#ifndef VEC2_HPP
+#define VEC2_HPP
 
 struct vec2 {
     int x;
     int y;
 };
 
-#endif // __VEC2_HPP__
+#endif // VEC2_HPP
