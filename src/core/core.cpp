@@ -10,20 +10,6 @@
 
 #include "core/specs.hpp"
 
-void drawEntity(SDLState& p_sdl, const Entity& p_obj) {
-    SDL_Color dcolor{gamespecs::DRAWCOLOR[static_cast<size_t>(p_obj.type)]};
-
-    SDL_SetRenderDrawColor(p_sdl.getRenderer(), dcolor.r, dcolor.g, dcolor.b, dcolor.a);
-
-    SDL_FRect dest{
-        .x = static_cast<float>(gamespecs::CELL_SIDE*p_obj.pos.x+1),
-        .y = static_cast<float>(gamespecs::CELL_SIDE*p_obj.pos.y+1),
-        .w = static_cast<float>(gamespecs::CELL_SIDE-1),
-        .h = static_cast<float>(gamespecs::CELL_SIDE-1),
-    };
-    SDL_RenderFillRect(p_sdl.getRenderer(), &dest);
-}
-
 struct GameState {
     bool isRunning;
     int64_t deltaTime;
@@ -71,9 +57,7 @@ void changePlayerDirection(GameState& p_game) {
 
 }
 
-void movePlayer(GameState& p_game) {
-    p_game.player.direction = p_game.player.nextDirection;
-
+void movePlayerBody(GameState& p_game) {
     if (p_game.player.body.size() > 0) {
         auto GetBodyReversed = [&](size_t l_index) -> Entity& {
             return p_game.entities[p_game.player.body[p_game.player.body.size()-l_index-1]];
@@ -84,7 +68,9 @@ void movePlayer(GameState& p_game) {
         }
         GetBodyReversed(p_game.player.body.size()-1).pos = p_game.entities[p_game.player.head].pos;
     }
+}
 
+void movePlayerHead(GameState& p_game) {
     switch (p_game.player.direction) {
         case PlayerDirection::Up:
             p_game.entities[p_game.player.head].pos.y--;
@@ -101,6 +87,28 @@ void movePlayer(GameState& p_game) {
     }
 }
 
+void movePlayer(GameState& p_game) {
+    p_game.player.direction = p_game.player.nextDirection;
+
+    movePlayerBody(p_game);
+    movePlayerHead(p_game);
+    
+}
+
+void drawEntity(SDLState& p_sdl, const Entity& p_obj) {
+    SDL_Color dcolor{gamespecs::DRAWCOLOR[static_cast<size_t>(p_obj.type)]};
+
+    SDL_SetRenderDrawColor(p_sdl.getRenderer(), dcolor.r, dcolor.g, dcolor.b, dcolor.a);
+
+    SDL_FRect dest{
+        .x = static_cast<float>(gamespecs::CELL_SIDE*p_obj.pos.x+1),
+        .y = static_cast<float>(gamespecs::CELL_SIDE*p_obj.pos.y+1),
+        .w = static_cast<float>(gamespecs::CELL_SIDE-1),
+        .h = static_cast<float>(gamespecs::CELL_SIDE-1),
+    };
+    SDL_RenderFillRect(p_sdl.getRenderer(), &dest);
+}
+
 void handleEvents([[maybe_unused]] SDLState& p_sdl, GameState& p_game) {
     SDL_Event ev;
     while (SDL_PollEvent(&ev)) {
@@ -108,6 +116,31 @@ void handleEvents([[maybe_unused]] SDLState& p_sdl, GameState& p_game) {
     }
 
     changePlayerDirection(p_game);
+}
+
+void detectCollision(GameState& p_game) {
+    Entity& playerHead {p_game.entities[p_game.player.head]};
+    for (size_t i{}; i < p_game.entities.size(); i++) {
+        if (i == p_game.player.head) continue;
+
+        Entity& ent {p_game.entities[i]};
+        if (ent.type == EntityType::Inactive) continue;
+
+        if (playerHead.pos == ent.pos) {
+            switch (ent.type) {
+                case EntityType::PlayerBody:
+                break;
+
+                case EntityType::Apple:
+                break;
+
+                case EntityType::Rock:
+                break;
+
+                default:
+            }
+        }
+    }
 }
 
 void logic([[maybe_unused]] SDLState& p_sdl, GameState& p_game) {
@@ -120,6 +153,7 @@ void logic([[maybe_unused]] SDLState& p_sdl, GameState& p_game) {
     if (p_game.movePlayerTimer.step(p_game.deltaTime)) {
         p_game.movePlayerTimer.reset();
         movePlayer(p_game);
+        detectCollision(p_game);
     }
 }
 
@@ -153,8 +187,7 @@ void render(SDLState& p_sdl, GameState& p_game) {
 void loop(SDLState& p_sdl) {
     GameState game;
     game.entities[game.player.head].pos = {.x = gamespecs::WIDTH/2, .y = gamespecs::HEIGHT/2};
-    game.entities.emplace_back(1, 1, EntityType::Apple);
-    game.entities.emplace_back(3, 1, EntityType::Rock);
+    game.entities.emplace_back(-1, -1, EntityType::Apple);
     for (int32_t i = 0; i < 10; i++) game.increasePlayer();
 
     while (game.isRunning) {

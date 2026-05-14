@@ -9,6 +9,7 @@ enum class EntityType {
     PlayerBody,
     Apple,
     Rock,
+    Inactive
 };
 
 struct Entity {
