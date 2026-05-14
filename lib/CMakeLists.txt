@@ -8,8 +8,8 @@ FetchContent_Declare(
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SDL3"
 )
 
-set(SDL_WAYLAND On CACHE BOOL "Enable Wayland support" FORCE)
-set(SDL_WAYLAND_LIBDECOR On CACHE BOOL "Enable Wayland client-side decorations" FORCE)
+# set(SDL_WAYLAND On CACHE BOOL "Enable Wayland support" FORCE)
+# set(SDL_WAYLAND_LIBDECOR On CACHE BOOL "Enable Wayland client-side decorations" FORCE)
 
 FetchContent_MakeAvailable(SDL3)
 
