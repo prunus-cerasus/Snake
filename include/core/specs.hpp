@@ -7,7 +7,8 @@ namespace gamespecs {
     constexpr int32_t WIDTH {40};
     constexpr int32_t HEIGHT {30};
     constexpr float CELL_SIDE {20.0f};
-    constexpr int64_t MOVEMENT_TIME {600'000'000};
+    constexpr int64_t MOVEMENT_TIME {200'000'000};
+    constexpr int32_t PLAYERSIZE_PER_ROCK {4};
 
     constexpr SDL_Color BG_COLOR {
         .r = 0x30,

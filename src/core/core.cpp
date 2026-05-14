@@ -20,8 +20,13 @@ struct GameState {
     int32_t numkeys;
 
     std::vector<Entity> entities;
+    std::vector<size_t> inactiveEntityIds;
+    std::vector<size_t> consumableIds;
+
     Player player;
     Timer movePlayerTimer;
+    bool hasConsumed;
+
 
     std::random_device rd;
     std::mt19937 mt_gen;
@@ -34,15 +39,12 @@ struct GameState {
         previousTime(0L),
         keyState(SDL_GetKeyboardState(&numkeys)),
         movePlayerTimer(gamespecs::MOVEMENT_TIME),
+        hasConsumed(false),
         mt_gen(rd()),
         distrib_w(0, gamespecs::WIDTH-1),
-        distrib_h(0, gamespecs::HEIGHT-1) {
+        distrib_h(0, gamespecs::HEIGHT-1)
+        {
         entities.emplace_back(0, 0, EntityType::PlayerHead);
-    }
-
-    void increasePlayer() {
-        entities.emplace_back(-1, -1, EntityType::PlayerBody);
-        player.body.emplace_back(entities.size()-1);
     }
 };
 
@@ -69,6 +71,33 @@ void changePlayerDirection(GameState& p_game) {
         }
     }
 
+}
+
+inline void deactivateEntity(GameState& p_game, size_t p_entityIdx) {
+    p_game.entities[p_entityIdx].type = EntityType::Inactive;
+    p_game.inactiveEntityIds.emplace_back(p_entityIdx);
+}
+
+inline size_t activateEntity(GameState& p_game, EntityType p_type) {
+    Entity ent(-1, -1, p_type);
+    if (p_game.inactiveEntityIds.size() > 0) {
+        size_t idx{p_game.inactiveEntityIds.back()};
+        p_game.inactiveEntityIds.pop_back();
+        p_game.entities[idx] = ent;
+        return idx;
+    }
+
+    p_game.entities.emplace_back(ent);
+    return p_game.entities.size()-1;
+}
+
+inline void increasePlayer(GameState& p_game) {
+    p_game.player.body.emplace_back(activateEntity(p_game, EntityType::PlayerBody));
+}
+
+inline void decreasePlayer(GameState& p_game) {
+    deactivateEntity(p_game, p_game.player.body.back());
+    p_game.player.body.pop_back();
 }
 
 void movePlayerBody(GameState& p_game) {
@@ -138,23 +167,36 @@ void handleEvents([[maybe_unused]] SDLState& p_sdl, GameState& p_game) {
     changePlayerDirection(p_game);
 }
 
-void generateApple(GameState& p_game) {
-    Entity apple(p_game.entities[p_game.player.head]);
-    apple.type = EntityType::Apple;
+void randomizeConsumable(GameState& p_game, size_t p_consumableIdx) {
+    bool foundCollision{false};
+    do {
+        Entity& ent = p_game.entities[p_game.consumableIds[p_consumableIdx]];
+        ent.pos.x = p_game.distrib_w(p_game.mt_gen);
+        ent.pos.y = p_game.distrib_h(p_game.mt_gen);
 
-    while (apple.pos == p_game.entities[p_game.player.head].pos) {
-        apple.pos.x = p_game.distrib_w(p_game.mt_gen);
-        apple.pos.y = p_game.distrib_h(p_game.mt_gen);
-    }
-
-    for (Entity& ent : p_game.entities) {
-        if (ent.type == EntityType::Inactive) {
-            ent = apple;
-            return;
+        foundCollision = false;
+        for (size_t i{}; i < p_consumableIdx; i++) {
+            if (p_game.entities[p_game.consumableIds[i]].pos == ent.pos) {
+                foundCollision = true;
+                continue;
+            }
         }
-    }
 
-    p_game.entities.emplace_back(apple);
+        if (p_game.entities[p_game.player.head].pos == ent.pos)
+            foundCollision = true;
+    } while (foundCollision);
+}
+
+void generateConsumable(GameState& p_game, EntityType p_type) {
+    const size_t idx{activateEntity(p_game, p_type)};
+    p_game.consumableIds.emplace_back(idx);
+
+    randomizeConsumable(p_game, p_game.consumableIds.size()-1);
+}
+
+void removeConsumable(GameState& p_game, size_t p_consumableIdx) {
+    deactivateEntity(p_game, p_game.consumableIds[p_consumableIdx]);
+    p_game.consumableIds.erase(p_game.consumableIds.begin()+p_consumableIdx);
 }
 
 void detectCollision(GameState& p_game) {
@@ -172,14 +214,16 @@ void detectCollision(GameState& p_game) {
                 break;
 
                 case EntityType::Apple: {
-                    ent.type = EntityType::Inactive;
-                    p_game.increasePlayer();
-                    generateApple(p_game);
+                    p_game.hasConsumed = true;
+                    increasePlayer(p_game);
                     break;
                 }
 
-                case EntityType::Rock:
-                break;
+                case EntityType::Rock: {
+                    p_game.hasConsumed = true;
+                    decreasePlayer(p_game);
+                    break;
+                }
 
                 default:
             }
@@ -198,6 +242,26 @@ void logic([[maybe_unused]] SDLState& p_sdl, GameState& p_game) {
         p_game.movePlayerTimer.reset();
         movePlayer(p_game);
         detectCollision(p_game);
+        
+        if (p_game.hasConsumed) {
+            p_game.hasConsumed = false;
+
+            size_t currentRockCount {};
+            size_t expectedRockCount {p_game.player.body.size() / gamespecs::PLAYERSIZE_PER_ROCK};
+            size_t lastRockIndex{};
+            for (size_t i{}; i < p_game.consumableIds.size(); i++) {
+                if (p_game.entities[p_game.consumableIds[i]].type == EntityType::Rock) {
+                    currentRockCount += 1;
+                    lastRockIndex = i;
+                }
+                randomizeConsumable(p_game, i);
+            }
+
+            if (currentRockCount < expectedRockCount)
+                generateConsumable(p_game, EntityType::Rock);
+            else if (currentRockCount > expectedRockCount)
+                removeConsumable(p_game, lastRockIndex);
+        }
     }
 }
 
@@ -222,6 +286,7 @@ void render(SDLState& p_sdl, GameState& p_game) {
     SDL_RenderFillRect(p_sdl.getRenderer(), &bg_dest);
 
     for (const auto& entity : p_game.entities) {
+        if (entity.type == EntityType::Inactive) continue;
         drawEntity(p_sdl, entity);
     }
 
@@ -231,7 +296,7 @@ void render(SDLState& p_sdl, GameState& p_game) {
 void loop(SDLState& p_sdl) {
     GameState game;
     game.entities[game.player.head].pos = {.x = gamespecs::WIDTH/2, .y = gamespecs::HEIGHT/2};
-    generateApple(game);
+    generateConsumable(game, EntityType::Apple);
     // for (int32_t i = 0; i < 10; i++) game.increasePlayer();
 
     while (game.isRunning) {
