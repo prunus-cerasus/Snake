@@ -162,6 +162,7 @@ void detectCollision(GameState& p_game) {
         if (playerHead.pos == ent.pos) {
             switch (ent.type) {
                 case EntityType::PlayerBody:
+                    p_game.isRunning = false;
                 break;
 
                 case EntityType::Apple: {
