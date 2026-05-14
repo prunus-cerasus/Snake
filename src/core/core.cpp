@@ -23,7 +23,20 @@ struct GameState {
     Player player;
     Timer movePlayerTimer;
 
-    GameState() : isRunning(true), deltaTime(0L), previousTime(0L), keyState(SDL_GetKeyboardState(&numkeys)), movePlayerTimer(gamespecs::MOVEMENT_TIME) {
+    std::random_device rd;
+    std::mt19937 mt_gen;
+    std::uniform_int_distribution<> distrib_w;
+    std::uniform_int_distribution<> distrib_h;
+
+    GameState()
+        : isRunning(true),
+        deltaTime(0L),
+        previousTime(0L),
+        keyState(SDL_GetKeyboardState(&numkeys)),
+        movePlayerTimer(gamespecs::MOVEMENT_TIME),
+        mt_gen(rd()),
+        distrib_w(0, gamespecs::WIDTH-1),
+        distrib_h(0, gamespecs::HEIGHT-1) {
         entities.emplace_back(0, 0, EntityType::PlayerHead);
     }
 
@@ -123,14 +136,9 @@ void generateApple(GameState& p_game) {
     Entity apple(p_game.entities[p_game.player.head]);
     apple.type = EntityType::Apple;
 
-    std::random_device rd;
-    std::mt19937 mt_gen(rd());
-    std::uniform_int_distribution<> distrib_w(0, gamespecs::WIDTH-1);
-    std::uniform_int_distribution<> distrib_h(0, gamespecs::HEIGHT-1);
-
     while (apple.pos == p_game.entities[p_game.player.head].pos) {
-        apple.pos.x = distrib_w(mt_gen);
-        apple.pos.y = distrib_h(mt_gen);
+        apple.pos.x = p_game.distrib_w(p_game.mt_gen);
+        apple.pos.y = p_game.distrib_h(p_game.mt_gen);
     }
 
     for (Entity& ent : p_game.entities) {
