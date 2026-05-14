@@ -1,4 +1,5 @@
 #include <iostream>
+#include <random>
 
 #include "SDL3/SDL.h"
 
@@ -118,6 +119,30 @@ void handleEvents([[maybe_unused]] SDLState& p_sdl, GameState& p_game) {
     changePlayerDirection(p_game);
 }
 
+void generateApple(GameState& p_game) {
+    Entity apple(p_game.entities[p_game.player.head]);
+    apple.type = EntityType::Apple;
+
+    std::random_device rd;
+    std::mt19937 mt_gen(rd());
+    std::uniform_int_distribution<> distrib_w(0, gamespecs::WIDTH-1);
+    std::uniform_int_distribution<> distrib_h(0, gamespecs::HEIGHT-1);
+
+    while (apple.pos == p_game.entities[p_game.player.head].pos) {
+        apple.pos.x = distrib_w(mt_gen);
+        apple.pos.y = distrib_h(mt_gen);
+    }
+
+    for (Entity& ent : p_game.entities) {
+        if (ent.type == EntityType::Inactive) {
+            ent = apple;
+            return;
+        }
+    }
+
+    p_game.entities.emplace_back(apple);
+}
+
 void detectCollision(GameState& p_game) {
     Entity& playerHead {p_game.entities[p_game.player.head]};
     for (size_t i{}; i < p_game.entities.size(); i++) {
@@ -131,8 +156,12 @@ void detectCollision(GameState& p_game) {
                 case EntityType::PlayerBody:
                 break;
 
-                case EntityType::Apple:
-                break;
+                case EntityType::Apple: {
+                    ent.type = EntityType::Inactive;
+                    p_game.increasePlayer();
+                    generateApple(p_game);
+                    break;
+                }
 
                 case EntityType::Rock:
                 break;
@@ -187,8 +216,8 @@ void render(SDLState& p_sdl, GameState& p_game) {
 void loop(SDLState& p_sdl) {
     GameState game;
     game.entities[game.player.head].pos = {.x = gamespecs::WIDTH/2, .y = gamespecs::HEIGHT/2};
-    game.entities.emplace_back(-1, -1, EntityType::Apple);
-    for (int32_t i = 0; i < 10; i++) game.increasePlayer();
+    generateApple(game);
+    // for (int32_t i = 0; i < 10; i++) game.increasePlayer();
 
     while (game.isRunning) {
         handleEvents(p_sdl, game);
