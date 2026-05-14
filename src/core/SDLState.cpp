@@ -1,20 +1,22 @@
 #include "core/SDLState.hpp"
 
-namespace specs {
-    constexpr int WIDTH {800};
-    constexpr int HEIGHT {600};
-    constexpr const char* TITLE {"Program"};
-    constexpr int FLAGS {SDL_WINDOW_RESIZABLE};
-}
+#include "core/specs.hpp"
 
 SDLState::SDLState() : m_window(nullptr), m_renderer(nullptr) {
     if (!SDL_InitSubSystem(SDL_INIT_VIDEO)) return;
 
-    m_window = SDL_CreateWindow(specs::TITLE, specs::WIDTH, specs::HEIGHT, specs::FLAGS);
+    m_window = SDL_CreateWindow(specs::TITLE, specs::LOGICAL_WIDTH, specs::LOGICAL_HEIGHT, specs::FLAGS);
     if (m_window == nullptr) return;
 
     m_renderer = SDL_CreateRenderer(m_window, nullptr);
     if (m_renderer == nullptr) return;
+
+    SDL_SetRenderLogicalPresentation(
+        m_renderer,
+        specs::LOGICAL_WIDTH,
+        specs::LOGICAL_HEIGHT,
+        SDL_LOGICAL_PRESENTATION_LETTERBOX
+    );
 }
 
 SDLState::SDLState(SDLState&& p_other) noexcept : m_window(p_other.m_window), m_renderer(p_other.m_renderer) {

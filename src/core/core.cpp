@@ -8,39 +8,7 @@
 #include "core/Entity.hpp"
 #include "core/Player.hpp"
 
-namespace gamespecs {
-    constexpr int32_t WIDTH {40};
-    constexpr int32_t HEIGHT {30};
-    constexpr float CELL_SIDE {20.0f};
-    constexpr int64_t MOVEMENT_TIME {600'000'000};
-
-    constexpr SDL_Color DRAWCOLOR[] {
-        {
-            .r = 0x00,
-            .g = 0xff,
-            .b = 0x00,
-            .a = 0xff,
-        },
-        {
-            .r = 0x00,
-            .g = 0x9f,
-            .b = 0x00,
-            .a = 0xff,
-        },
-        {
-            .r = 0xff,
-            .g = 0x00,
-            .b = 0x00,
-            .a = 0xff,
-        },
-        {
-            .r = 0xaf,
-            .g = 0xaf,
-            .b = 0xaf,
-            .a = 0xff,
-        },
-    };
-};
+#include "core/specs.hpp"
 
 void drawEntity(SDLState& p_sdl, const Entity& p_obj) {
     SDL_Color dcolor{gamespecs::DRAWCOLOR[static_cast<size_t>(p_obj.type)]};
@@ -48,10 +16,10 @@ void drawEntity(SDLState& p_sdl, const Entity& p_obj) {
     SDL_SetRenderDrawColor(p_sdl.getRenderer(), dcolor.r, dcolor.g, dcolor.b, dcolor.a);
 
     SDL_FRect dest{
-        .x = gamespecs::CELL_SIDE*p_obj.pos.x+1,
-        .y = gamespecs::CELL_SIDE*p_obj.pos.y+1,
-        .w = gamespecs::CELL_SIDE-1,
-        .h = gamespecs::CELL_SIDE-1,
+        .x = static_cast<float>(gamespecs::CELL_SIDE*p_obj.pos.x+1),
+        .y = static_cast<float>(gamespecs::CELL_SIDE*p_obj.pos.y+1),
+        .w = static_cast<float>(gamespecs::CELL_SIDE-1),
+        .h = static_cast<float>(gamespecs::CELL_SIDE-1),
     };
     SDL_RenderFillRect(p_sdl.getRenderer(), &dest);
 }
@@ -156,8 +124,24 @@ void logic([[maybe_unused]] SDLState& p_sdl, GameState& p_game) {
 }
 
 void render(SDLState& p_sdl, GameState& p_game) {
-    SDL_SetRenderDrawColor(p_sdl.getRenderer(), 0, 0, 0, 0);
+    SDL_SetRenderDrawColor(p_sdl.getRenderer(), 0, 0, 0, 0xff);
     SDL_RenderClear(p_sdl.getRenderer());
+    SDL_SetRenderDrawColor(
+        p_sdl.getRenderer(),
+        gamespecs::BG_COLOR.r,
+        gamespecs::BG_COLOR.g,
+        gamespecs::BG_COLOR.b,
+        gamespecs::BG_COLOR.a
+    );
+
+    const SDL_FRect bg_dest {
+        .x = 0.0f,
+        .y = 0.0f,
+        .w = static_cast<float>(specs::LOGICAL_WIDTH),
+        .h = static_cast<float>(specs::LOGICAL_HEIGHT),
+    };
+
+    SDL_RenderFillRect(p_sdl.getRenderer(), &bg_dest);
 
     for (const auto& entity : p_game.entities) {
         drawEntity(p_sdl, entity);
