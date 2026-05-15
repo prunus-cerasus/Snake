@@ -136,12 +136,10 @@ void movePlayer(GameState& p_game) {
     movePlayerBody(p_game);
     movePlayerHead(p_game);
     
-    if (
-        p_game.entities[p_game.player.head].pos.x < 0 ||
-        p_game.entities[p_game.player.head].pos.x >= gamespecs::WIDTH ||
-        p_game.entities[p_game.player.head].pos.y < 0 ||
-        p_game.entities[p_game.player.head].pos.y >= gamespecs::HEIGHT
-    ) p_game.isRunning = false;
+    if (p_game.entities[p_game.player.head].pos.x < 0) p_game.entities[p_game.player.head].pos.x += gamespecs::WIDTH;
+    if (p_game.entities[p_game.player.head].pos.x >= gamespecs::WIDTH) p_game.entities[p_game.player.head].pos.x -= gamespecs::WIDTH;
+    if (p_game.entities[p_game.player.head].pos.y < 0) p_game.entities[p_game.player.head].pos.y += gamespecs::HEIGHT;
+    if (p_game.entities[p_game.player.head].pos.y >= gamespecs::HEIGHT) p_game.entities[p_game.player.head].pos.y -= gamespecs::HEIGHT;
 }
 
 void drawEntity(SDLState& p_sdl, const Entity& p_obj) {
