@@ -2,6 +2,7 @@ set(core_SOURCES
     core.cpp
     SDLState.cpp
     Timer.cpp
+    Game.cpp
 )
 
 add_library(${PROJECT_NAME}_core STATIC ${core_SOURCES})

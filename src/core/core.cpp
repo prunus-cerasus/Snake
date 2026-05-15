@@ -8,45 +8,9 @@
 #include "core/vec2.hpp"
 #include "core/Entity.hpp"
 #include "core/Player.hpp"
+#include "core/Game.hpp"
 
 #include "core/specs.hpp"
-
-struct GameState {
-    bool isRunning;
-    int64_t deltaTime;
-    int64_t previousTime;
-
-    const bool* keyState;
-    int32_t numkeys;
-
-    std::vector<Entity> entities;
-    std::vector<size_t> inactiveEntityIds;
-    std::vector<size_t> consumableIds;
-
-    Player player;
-    Timer movePlayerTimer;
-    bool hasConsumed;
-
-
-    std::random_device rd;
-    std::mt19937 mt_gen;
-    std::uniform_int_distribution<> distrib_w;
-    std::uniform_int_distribution<> distrib_h;
-
-    GameState()
-        : isRunning(true),
-        deltaTime(0L),
-        previousTime(0L),
-        keyState(SDL_GetKeyboardState(&numkeys)),
-        movePlayerTimer(gamespecs::MOVEMENT_TIME),
-        hasConsumed(false),
-        mt_gen(rd()),
-        distrib_w(0, gamespecs::WIDTH-1),
-        distrib_h(0, gamespecs::HEIGHT-1)
-        {
-        entities.emplace_back(0, 0, EntityType::PlayerHead);
-    }
-};
 
 void changePlayerDirection(GameState& p_game) {
     vec2 dir{.x = 0, .y = 0};
@@ -304,11 +268,80 @@ void loop(SDLState& p_sdl) {
     }
 }
 
+void state::Gameplay::handleEvents(Game*) {
+    changePlayerDirection(state);
+}
+
+void state::Gameplay::logic(Game* p_game) {
+    if (state.movePlayerTimer.step(p_game->deltaTime)) {
+        state.movePlayerTimer.reset();
+        movePlayer(state);
+        detectCollision(state);
+        p_game->isRunning = state.isRunning;
+        
+        if (state.hasConsumed) {
+            state.hasConsumed = false;
+
+            size_t currentRockCount {};
+            size_t expectedRockCount {state.player.body.size() / gamespecs::PLAYERSIZE_PER_ROCK};
+            size_t lastRockIndex{};
+            for (size_t i{}; i < state.consumableIds.size(); i++) {
+                if (state.entities[state.consumableIds[i]].type == EntityType::Rock) {
+                    currentRockCount += 1;
+                    lastRockIndex = i;
+                }
+                randomizeConsumable(state, i);
+            }
+
+            if (currentRockCount < expectedRockCount)
+                generateConsumable(state, EntityType::Rock);
+            else if (currentRockCount > expectedRockCount)
+                removeConsumable(state, lastRockIndex);
+        }
+    }
+}
+
+void state::Gameplay::render(Game* p_game) {
+    SDL_SetRenderDrawColor(
+        p_game->sdl.getRenderer(),
+        gamespecs::BG_COLOR.r,
+        gamespecs::BG_COLOR.g,
+        gamespecs::BG_COLOR.b,
+        gamespecs::BG_COLOR.a
+    );
+
+    const SDL_FRect bg_dest {
+        .x = 0.0f,
+        .y = 0.0f,
+        .w = static_cast<float>(specs::LOGICAL_WIDTH),
+        .h = static_cast<float>(specs::LOGICAL_HEIGHT),
+    };
+
+    SDL_RenderFillRect(p_game->sdl.getRenderer(), &bg_dest);
+
+    for (const auto& entity : state.entities) {
+        if (entity.type == EntityType::Inactive) continue;
+        drawEntity(p_game->sdl, entity);
+    }
+}
+
+void loop(Game& p_game) {
+    p_game.changeState(new state::Gameplay);
+    state::Gameplay* gp = std::get<2>(p_game.state);
+    generateConsumable(gp->state, EntityType::Apple);
+
+    while (p_game.isRunning) {
+        p_game.handleEvents();
+        p_game.logic();
+        p_game.render();
+    }
+}
+
 void core() {
-    SDLState sdl;
-    if (!sdl.valid()) {
+    Game game;
+    if (!game.sdl.valid()) {
         std::cerr << "Fatal Error:"  << SDL_GetError() << '\n';
         return;
     }
-    loop(sdl);
+    loop(game);
 }
