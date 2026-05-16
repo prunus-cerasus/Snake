@@ -17,6 +17,8 @@ SDLState::SDLState() : m_window(nullptr), m_renderer(nullptr) {
         specs::LOGICAL_HEIGHT,
         SDL_LOGICAL_PRESENTATION_LETTERBOX
     );
+
+    SDL_SetRenderVSync(m_renderer, 1);
 }
 
 SDLState::SDLState(SDLState&& p_other) noexcept : m_window(p_other.m_window), m_renderer(p_other.m_renderer) {
