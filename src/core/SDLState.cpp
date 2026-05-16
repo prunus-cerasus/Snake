@@ -2,7 +2,7 @@
 
 #include "core/specs.hpp"
 
-SDLState::SDLState() : m_window(nullptr), m_renderer(nullptr) {
+SDLState::SDLState() : m_window(nullptr), m_renderer(nullptr), m_isValid(true) {
     if (!SDL_InitSubSystem(SDL_INIT_VIDEO)) return;
 
     m_window = SDL_CreateWindow(specs::TITLE, specs::LOGICAL_WIDTH, specs::LOGICAL_HEIGHT, specs::FLAGS);
@@ -11,14 +11,18 @@ SDLState::SDLState() : m_window(nullptr), m_renderer(nullptr) {
     m_renderer = SDL_CreateRenderer(m_window, nullptr);
     if (m_renderer == nullptr) return;
 
-    SDL_SetRenderLogicalPresentation(
+    if (!SDL_SetRenderLogicalPresentation(
         m_renderer,
         specs::LOGICAL_WIDTH,
         specs::LOGICAL_HEIGHT,
         SDL_LOGICAL_PRESENTATION_LETTERBOX
-    );
+    )) {
+        m_isValid = false;
+        return;
+    }
 
-    SDL_SetRenderVSync(m_renderer, 1);
+    if (!SDL_SetRenderVSync(m_renderer, 1))
+        m_isValid = false;
 }
 
 SDLState::SDLState(SDLState&& p_other) noexcept : m_window(p_other.m_window), m_renderer(p_other.m_renderer) {
@@ -33,7 +37,7 @@ SDLState::~SDLState() {
 }
 
 bool SDLState::valid() {
-    return m_window != nullptr && m_renderer != nullptr;
+    return m_window != nullptr && m_renderer != nullptr && m_isValid;
 }
 
 SDL_Window* SDLState::getWindow() const noexcept {
