@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "core/vec2.hpp"
 #include "core/Game.hpp"
 
@@ -8,7 +10,8 @@ state::Gameplay::Gameplay() :
     distrib_w(0, gamespecs::WIDTH-1),
     distrib_h(0, gamespecs::HEIGHT-1)
     {
-    entities.emplace_back(0, 0, EntityType::PlayerHead);
+    entities.emplace_back(gamespecs::WIDTH/2, gamespecs::HEIGHT/2, EntityType::PlayerHead);
+    generateConsumable(EntityType::Apple);
 }
 
 void state::Gameplay::changePlayerDirection(const bool* p_keyState) {

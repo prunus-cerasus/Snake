@@ -76,6 +76,8 @@ struct Game {
     void logic();
     void render();
 
+    void loop();
+
     SDLState sdl;
 
     bool isRunning;

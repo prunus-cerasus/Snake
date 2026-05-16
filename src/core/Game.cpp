@@ -70,3 +70,11 @@ void Game::render() {
 
     SDL_RenderPresent(sdl.getRenderer());
 }
+
+void Game::loop() {
+    while (isRunning) {
+        handleEvents();
+        logic();
+        render();
+    }
+}
