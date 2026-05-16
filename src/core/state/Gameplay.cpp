@@ -1,7 +1,11 @@
+#include <cstdint>
 #include <iostream>
 
+#include "core/specs.hpp"
 #include "core/vec2.hpp"
-#include "core/Game.hpp"
+#include "core/Entity.hpp"
+#include "core/Player.hpp"
+#include "core/state/Gameplay.hpp"
 
 state::Gameplay::Gameplay() :
     movePlayerTimer(gamespecs::MOVEMENT_TIME),

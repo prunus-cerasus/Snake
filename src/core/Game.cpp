@@ -36,9 +36,9 @@ void Game::handleEvents() {
 
     std::visit(overloads {
         [](state::Empty) {},
-        [this](state::Menu& p_menu) { p_menu.handleEvents(this); },
+        [](state::Menu& p_menu) { p_menu.handleEvents(); },
         [this](state::Gameplay& p_gameplay) { p_gameplay.handleEvents(this->keyState); },
-        [this](state::GameOver& p_gameOver) { p_gameOver.handleEvents(this); },
+        [](state::GameOver& p_gameOver) { p_gameOver.handleEvents(); },
     }, state);
 }
 
@@ -51,9 +51,9 @@ void Game::logic() {
 
     std::visit(overloads {
         [](state::Empty) {},
-        [this](state::Menu& p_menu) { p_menu.logic(this); },
+        [](state::Menu& p_menu) { p_menu.logic(); },
         [this](state::Gameplay& p_gameplay) { p_gameplay.logic(this->deltaTime, this->isRunning); },
-        [this](state::GameOver& p_gameOver) { p_gameOver.logic(this); },
+        [](state::GameOver& p_gameOver) { p_gameOver.logic(); },
     }, state);
 }
 
@@ -63,9 +63,9 @@ void Game::render() {
 
     std::visit(overloads {
         [](state::Empty) {},
-        [this](state::Menu& p_menu) { p_menu.render(this); },
+        [](state::Menu& p_menu) { p_menu.render(); },
         [this](state::Gameplay& p_gameplay) { p_gameplay.render(this->sdl); },
-        [this](state::GameOver& p_gameOver) { p_gameOver.render(this); },
+        [](state::GameOver& p_gameOver) { p_gameOver.render(); },
     }, state);
 
     SDL_RenderPresent(sdl.getRenderer());
