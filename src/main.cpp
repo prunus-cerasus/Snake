@@ -9,7 +9,7 @@ int main() {
         return 1;
     }
 
-    game.changeState(state::Gameplay());
+    game.changeState(state::Menu());
     game.loop();
     return 0;
 }

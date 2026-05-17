@@ -4,17 +4,19 @@
 #include <cstdint>
 #include <vector>
 #include <random>
+#include <variant>
 
 #include "core/SDLState.hpp"
 #include "core/Timer.hpp"
 #include "core/Entity.hpp"
 #include "core/Player.hpp"
+#include "core/state/Type.hpp"
 
 namespace state {
     struct Gameplay {
         Gameplay();
 
-        void handleEvents(const bool* p_keyState);
+        void handleEvents(bool& p_isRunning, const bool* p_keyState, state::Type& p_nextState);
         void logic(int64_t p_deltaTime, bool& p_isRunning);
         void render(SDLState& p_sdl);
 

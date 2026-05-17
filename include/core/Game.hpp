@@ -9,6 +9,7 @@
 #include "core/state/Menu.hpp"
 #include "core/state/Gameplay.hpp"
 #include "core/state/GameOver.hpp"
+#include "core/state/Type.hpp"
 
 struct Game {
     Game();
@@ -22,6 +23,7 @@ struct Game {
 
     void handleEvents();
     void logic();
+    void updateState();
     void render();
 
     void loop();
@@ -35,6 +37,8 @@ struct Game {
 
     const bool* keyState;
     int32_t numkeys;
+
+    state::Type nextState;
 
     std::variant<state::Empty, state::Menu, state::Gameplay, state::GameOver> state;
 };

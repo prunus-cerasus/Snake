@@ -6,6 +6,7 @@
 #include "core/Entity.hpp"
 #include "core/Player.hpp"
 #include "core/state/Gameplay.hpp"
+#include "core/state/Type.hpp"
 
 state::Gameplay::Gameplay() :
     movePlayerTimer(gamespecs::MOVEMENT_TIME),
@@ -179,7 +180,7 @@ void state::Gameplay::detectCollision(bool& p_isRunning) {
 
                 case EntityType::Rock: {
                     hasConsumed = true;
-                    decreasePlayer();
+                    for (int32_t i{}; i < gamespecs::PLAYERSIZE_PER_ROCK; i++) decreasePlayer();
                     break;
                 }
 
@@ -189,7 +190,19 @@ void state::Gameplay::detectCollision(bool& p_isRunning) {
     }
 }
 
-void state::Gameplay::handleEvents(const bool* p_keyState) {
+void state::Gameplay::handleEvents(bool& p_isRunning, const bool* p_keyState, state::Type& p_nextState) {
+    bool is_escapeDown{p_keyState[SDL_SCANCODE_ESCAPE]};
+
+    SDL_Event ev;
+    while (SDL_PollEvent(&ev)) {
+        if (ev.type == SDL_EVENT_QUIT) p_isRunning = false;
+        else if (ev.type == SDL_EVENT_KEY_DOWN) {
+            if (ev.key.key == SDLK_ESCAPE && !is_escapeDown) {
+                p_nextState = state::Type::Menu;
+            }
+        }
+    }
+
     changePlayerDirection(p_keyState);
 }
 

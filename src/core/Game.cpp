@@ -3,6 +3,7 @@
 
 #include "core/SDLState.hpp"
 #include "core/Game.hpp"
+#include "core/state/GameOver.hpp"
 
 // C++17 Overload pattern
 template<class... Ts> struct overloads : Ts... { using Ts::operator()...; };
@@ -18,6 +19,10 @@ Game::Game() :
     keyState(SDL_GetKeyboardState(&numkeys)),
     state(state::Empty{})
     {
+    if (sdl.valid()) {
+        SDL_SetRenderDrawColor(sdl.getRenderer(), 0, 0, 0, 0xff);
+        SDL_RenderClear(sdl.getRenderer());
+    }
 }
 
 Game::~Game() {
@@ -28,16 +33,32 @@ void Game::changeState(std::variant<state::Empty, state::Menu, state::Gameplay, 
     state = std::move(p_newState);
 }
 
-void Game::handleEvents() {
-    SDL_Event ev;
-    while (SDL_PollEvent(&ev)) {
-        if (ev.type == SDL_EVENT_QUIT) isRunning = false;
+void Game::updateState() {
+    switch (nextState) {
+        case state::Type::Empty: {
+            break;
+        }
+        case state::Type::Menu: {
+            state = state::Menu();
+            break;
+        }
+        case state::Type::Gameplay: {
+            state = state::Gameplay();
+            break;
+        }
+        case state::Type::GameOver: {
+            state = state::GameOver();
+            break;
+        }
     }
+    nextState = state::Type::Empty;
+}
 
+void Game::handleEvents() {
     std::visit(overloads {
         [](state::Empty) {},
-        [](state::Menu& p_menu) { p_menu.handleEvents(); },
-        [this](state::Gameplay& p_gameplay) { p_gameplay.handleEvents(this->keyState); },
+        [this](state::Menu& p_menu) { p_menu.handleEvents(this->isRunning, this->keyState, this->nextState); },
+        [this](state::Gameplay& p_gameplay) { p_gameplay.handleEvents(this->isRunning, this->keyState, this->nextState); },
         [](state::GameOver& p_gameOver) { p_gameOver.handleEvents(); },
     }, state);
 }
@@ -58,12 +79,10 @@ void Game::logic() {
 }
 
 void Game::render() {
-    SDL_SetRenderDrawColor(sdl.getRenderer(), 0, 0, 0, 0xff);
-    SDL_RenderClear(sdl.getRenderer());
 
     std::visit(overloads {
         [](state::Empty) {},
-        [](state::Menu& p_menu) { p_menu.render(); },
+        [this](state::Menu& p_menu) { p_menu.render(this->sdl); },
         [this](state::Gameplay& p_gameplay) { p_gameplay.render(this->sdl); },
         [](state::GameOver& p_gameOver) { p_gameOver.render(); },
     }, state);
@@ -72,9 +91,12 @@ void Game::render() {
 }
 
 void Game::loop() {
+    SDL_SetRenderDrawColor(sdl.getRenderer(), 0, 0, 0, 0xff);
+    SDL_RenderClear(sdl.getRenderer());
     while (isRunning) {
         handleEvents();
         logic();
+        updateState();
         render();
     }
 }

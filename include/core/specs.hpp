@@ -7,7 +7,7 @@ namespace gamespecs {
     constexpr int32_t WIDTH {40};
     constexpr int32_t HEIGHT {30};
     constexpr float CELL_SIDE {20.0f};
-    constexpr int64_t MOVEMENT_TIME {200'000'000};
+    constexpr int64_t MOVEMENT_TIME {40'000'000};
     constexpr int32_t PLAYERSIZE_PER_ROCK {4};
 
     constexpr SDL_Color BG_COLOR {
@@ -50,6 +50,7 @@ namespace specs {
     constexpr int LOGICAL_HEIGHT {600};
     constexpr const char* TITLE {"Program"};
     constexpr int FLAGS {SDL_WINDOW_RESIZABLE};
+    constexpr int MAX_BUFFER_COUNT {4};
 }
 
 #endif // SPECS_HPP

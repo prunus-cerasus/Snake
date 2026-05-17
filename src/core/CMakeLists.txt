@@ -2,6 +2,7 @@ set(core_SOURCES
     SDLState.cpp
     Timer.cpp
     Game.cpp
+    state/Menu.cpp
     state/Gameplay.cpp
 )
 
