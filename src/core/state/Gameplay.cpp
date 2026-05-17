@@ -9,13 +9,14 @@
 #include "core/state/Type.hpp"
 
 state::Gameplay::Gameplay() :
-    movePlayerTimer(gamespecs::MOVEMENT_TIME),
+    rockCount(0),
+    movePlayerTimer(specs::gameplay::MOVEMENT_TIME),
     hasConsumed(false),
     mt_gen( std::random_device{}() ),
-    distrib_w(0, gamespecs::WIDTH-1),
-    distrib_h(0, gamespecs::HEIGHT-1)
+    distrib_w(0, specs::gameplay::WIDTH-1),
+    distrib_h(0, specs::gameplay::HEIGHT-1)
     {
-    entities.emplace_back(gamespecs::WIDTH/2, gamespecs::HEIGHT/2, EntityType::PlayerHead);
+    entities.emplace_back(specs::gameplay::WIDTH/2, specs::gameplay::HEIGHT/2, EntityType::PlayerHead);
     generateConsumable(EntityType::Apple);
 }
 
@@ -106,28 +107,29 @@ void state::Gameplay::movePlayer() {
     movePlayerBody();
     movePlayerHead();
     
-    if (entities[player.head].pos.x < 0) entities[player.head].pos.x += gamespecs::WIDTH;
-    if (entities[player.head].pos.x >= gamespecs::WIDTH) entities[player.head].pos.x -= gamespecs::WIDTH;
-    if (entities[player.head].pos.y < 0) entities[player.head].pos.y += gamespecs::HEIGHT;
-    if (entities[player.head].pos.y >= gamespecs::HEIGHT) entities[player.head].pos.y -= gamespecs::HEIGHT;
+    if (entities[player.head].pos.x < 0) entities[player.head].pos.x += specs::gameplay::WIDTH;
+    if (entities[player.head].pos.x >= specs::gameplay::WIDTH) entities[player.head].pos.x -= specs::gameplay::WIDTH;
+    if (entities[player.head].pos.y < 0) entities[player.head].pos.y += specs::gameplay::HEIGHT;
+    if (entities[player.head].pos.y >= specs::gameplay::HEIGHT) entities[player.head].pos.y -= specs::gameplay::HEIGHT;
 }
 
 void state::Gameplay::drawEntity(SDLState& p_sdl, const Entity& p_obj) {
-    SDL_Color dcolor{gamespecs::DRAWCOLOR[static_cast<size_t>(p_obj.type)]};
+    SDL_Color dcolor{specs::gameplay::DRAWCOLOR[static_cast<size_t>(p_obj.type)]};
 
     SDL_SetRenderDrawColor(p_sdl.getRenderer(), dcolor.r, dcolor.g, dcolor.b, dcolor.a);
 
     SDL_FRect dest{
-        .x = static_cast<float>(gamespecs::CELL_SIDE*p_obj.pos.x+1),
-        .y = static_cast<float>(gamespecs::CELL_SIDE*p_obj.pos.y+1),
-        .w = static_cast<float>(gamespecs::CELL_SIDE-1),
-        .h = static_cast<float>(gamespecs::CELL_SIDE-1),
+        .x = static_cast<float>(specs::gameplay::CELL_SIDE*p_obj.pos.x+1),
+        .y = static_cast<float>(specs::gameplay::CELL_SIDE*p_obj.pos.y+1),
+        .w = static_cast<float>(specs::gameplay::CELL_SIDE-1),
+        .h = static_cast<float>(specs::gameplay::CELL_SIDE-1),
     };
     SDL_RenderFillRect(p_sdl.getRenderer(), &dest);
 }
 
 void state::Gameplay::randomizeConsumable(size_t p_consumableIdx) {
     bool foundCollision{false};
+    int32_t j{};
     do {
         Entity& ent = entities[consumableIds[p_consumableIdx]];
         ent.pos.x = distrib_w(mt_gen);
@@ -143,7 +145,12 @@ void state::Gameplay::randomizeConsumable(size_t p_consumableIdx) {
 
         if (entities[player.head].pos == ent.pos)
             foundCollision = true;
-    } while (foundCollision);
+
+    } while (foundCollision && ++j < specs::gameplay::MAX_RANDOM_LOOP_SIZE);
+
+    if (foundCollision) {
+        // TODO: If cannot find an empty spot, change state to GameOver
+    }
 }
 
 void state::Gameplay::generateConsumable(EntityType p_type) {
@@ -155,7 +162,8 @@ void state::Gameplay::generateConsumable(EntityType p_type) {
 
 void state::Gameplay::removeConsumable(size_t p_consumableIdx) {
     deactivateEntity(consumableIds[p_consumableIdx]);
-    consumableIds.erase(consumableIds.begin()+p_consumableIdx);
+    std::swap(consumableIds[p_consumableIdx], consumableIds.back());
+    consumableIds.pop_back();
 }
 
 void state::Gameplay::detectCollision(bool& p_isRunning) {
@@ -180,7 +188,7 @@ void state::Gameplay::detectCollision(bool& p_isRunning) {
 
                 case EntityType::Rock: {
                     hasConsumed = true;
-                    for (int32_t i{}; i < gamespecs::PLAYERSIZE_PER_ROCK; i++) decreasePlayer();
+                    for (int32_t i{}; i < specs::gameplay::PLAYERSIZE_PER_ROCK; i++) decreasePlayer();
                     break;
                 }
 
@@ -214,22 +222,19 @@ void state::Gameplay::logic(int64_t p_deltaTime, bool& p_isRunning) {
 
         if (hasConsumed) {
             hasConsumed = false;
-
-            size_t currentRockCount {};
-            size_t expectedRockCount {player.body.size() / gamespecs::PLAYERSIZE_PER_ROCK};
-            size_t lastRockIndex{};
-            for (size_t i{}; i < consumableIds.size(); i++) {
-                if (entities[consumableIds[i]].type == EntityType::Rock) {
-                    currentRockCount += 1;
-                    lastRockIndex = i;
+            size_t expectedRockCount{player.body.size()/state::specs::gameplay::PLAYERSIZE_PER_ROCK};
+            for (size_t i{consumableIds.size()}; i > 0; i--) {
+                randomizeConsumable(i-1);
+                if (entities[consumableIds[i-1]].type == EntityType::Rock) {
+                    if (rockCount > expectedRockCount) {
+                        removeConsumable(i-1);
+                        rockCount--;
+                    }
                 }
-                randomizeConsumable(i);
             }
 
-            if (currentRockCount < expectedRockCount)
+            for (; rockCount < expectedRockCount; rockCount++)
                 generateConsumable(EntityType::Rock);
-            else if (currentRockCount > expectedRockCount)
-                removeConsumable(lastRockIndex);
         }
     }
 }
@@ -237,17 +242,17 @@ void state::Gameplay::logic(int64_t p_deltaTime, bool& p_isRunning) {
 void state::Gameplay::render(SDLState& p_sdl) {
     SDL_SetRenderDrawColor(
         p_sdl.getRenderer(),
-        gamespecs::BG_COLOR.r,
-        gamespecs::BG_COLOR.g,
-        gamespecs::BG_COLOR.b,
-        gamespecs::BG_COLOR.a
+        specs::gameplay::BG_COLOR.r,
+        specs::gameplay::BG_COLOR.g,
+        specs::gameplay::BG_COLOR.b,
+        specs::gameplay::BG_COLOR.a
     );
 
     const SDL_FRect bg_dest {
         .x = 0.0f,
         .y = 0.0f,
-        .w = static_cast<float>(specs::LOGICAL_WIDTH),
-        .h = static_cast<float>(specs::LOGICAL_HEIGHT),
+        .w = static_cast<float>(::specs::LOGICAL_WIDTH),
+        .h = static_cast<float>(::specs::LOGICAL_HEIGHT),
     };
 
     SDL_RenderFillRect(p_sdl.getRenderer(), &bg_dest);
