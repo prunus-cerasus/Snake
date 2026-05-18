@@ -27,27 +27,15 @@ void state::Menu::logic() {
 }
 
 void state::Menu::render(SDLState& p_sdl) {
-    if (!isFilled) {
-        isFilled = true;
-        // SDL_SetRenderDrawBlendMode(p_sdl.getRenderer(), SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(p_sdl.getRenderer(), 0x40, 0x40, 0xa0, 0xff);
-        // SDL_RenderClear(p_sdl.getRenderer());
-        SDL_FRect dest{
-            .x = 0,
-            .y = 0,
-            .w = specs::LOGICAL_WIDTH,
-            .h = specs::LOGICAL_HEIGHT,
-        };
+    isFilled = true;
+    SDL_SetRenderDrawColor(p_sdl.getRenderer(), 0x40, 0x40, 0xa0, 0xff);
+    // SDL_RenderClear(p_sdl.getRenderer());
+    SDL_FRect dest{
+        .x = 0,
+        .y = 0,
+        .w = specs::LOGICAL_WIDTH,
+        .h = specs::LOGICAL_HEIGHT,
+    };
 
-        SDL_RenderFillRect(p_sdl.getRenderer(), &dest);
-        SDL_RenderPresent(p_sdl.getRenderer());
-        SDL_RenderFillRect(p_sdl.getRenderer(), &dest);
-        SDL_RenderPresent(p_sdl.getRenderer());
-        SDL_RenderFillRect(p_sdl.getRenderer(), &dest);
-        SDL_RenderPresent(p_sdl.getRenderer());
-        SDL_RenderFillRect(p_sdl.getRenderer(), &dest);
-        SDL_RenderPresent(p_sdl.getRenderer());
-
-        // SDL_SetRenderDrawBlendMode(p_sdl.getRenderer(), SDL_BLENDMODE_NONE);
-    }
+    SDL_RenderFillRect(p_sdl.getRenderer(), &dest);
 }
