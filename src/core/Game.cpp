@@ -73,7 +73,7 @@ void Game::logic() {
     std::visit(overloads {
         [](state::Empty) {},
         [](state::Menu& p_menu) { p_menu.logic(); },
-        [this](state::Gameplay& p_gameplay) { p_gameplay.logic(this->deltaTime, this->isRunning); },
+        [this](state::Gameplay& p_gameplay) { p_gameplay.logic(this->deltaTime, this->nextState); },
         [](state::GameOver& p_gameOver) { p_gameOver.logic(); },
     }, state);
 }

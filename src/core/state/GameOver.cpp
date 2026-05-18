@@ -25,7 +25,7 @@ void state::GameOver::render(SDLState& p_sdl) {
     if (!isFilled) {
         isFilled = true;
         // SDL_SetRenderDrawBlendMode(p_sdl.getRenderer(), SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(p_sdl.getRenderer(), 0x40, 0x40, 0xa0, 0xff);
+        SDL_SetRenderDrawColor(p_sdl.getRenderer(), 0xa0, 0x40, 0x40, 0xff);
         // SDL_RenderClear(p_sdl.getRenderer());
         SDL_FRect dest{
             .x = 0,

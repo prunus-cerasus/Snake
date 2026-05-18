@@ -166,7 +166,7 @@ void state::Gameplay::removeConsumable(size_t p_consumableIdx) {
     consumableIds.pop_back();
 }
 
-void state::Gameplay::detectCollision(bool& p_isRunning) {
+void state::Gameplay::detectCollision(state::Type& p_nextState) {
     Entity& playerHead {entities[player.head]};
     for (size_t i{}; i < entities.size(); i++) {
         if (i == player.head) continue;
@@ -177,7 +177,7 @@ void state::Gameplay::detectCollision(bool& p_isRunning) {
         if (playerHead.pos == ent.pos) {
             switch (ent.type) {
                 case EntityType::PlayerBody:
-                    p_isRunning = false;
+                    p_nextState = Type::GameOver;
                 break;
 
                 case EntityType::Apple: {
@@ -214,11 +214,11 @@ void state::Gameplay::handleEvents(bool& p_isRunning, const bool* p_keyState, st
     changePlayerDirection(p_keyState);
 }
 
-void state::Gameplay::logic(int64_t p_deltaTime, bool& p_isRunning) {
+void state::Gameplay::logic(int64_t p_deltaTime, state::Type& p_nextState) {
     if (movePlayerTimer.step(p_deltaTime)) {
         movePlayerTimer.reset();
         movePlayer();
-        detectCollision(p_isRunning);
+        detectCollision(p_nextState);
 
         if (hasConsumed) {
             hasConsumed = false;
