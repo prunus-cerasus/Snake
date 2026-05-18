@@ -4,6 +4,7 @@ set(core_SOURCES
     Game.cpp
     state/Menu.cpp
     state/Gameplay.cpp
+    state/GameOver.cpp
 )
 
 add_library(${PROJECT_NAME}_core STATIC ${core_SOURCES})

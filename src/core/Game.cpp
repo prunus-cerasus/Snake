@@ -59,7 +59,7 @@ void Game::handleEvents() {
         [](state::Empty) {},
         [this](state::Menu& p_menu) { p_menu.handleEvents(this->isRunning, this->keyState, this->nextState); },
         [this](state::Gameplay& p_gameplay) { p_gameplay.handleEvents(this->isRunning, this->keyState, this->nextState); },
-        [](state::GameOver& p_gameOver) { p_gameOver.handleEvents(); },
+        [this](state::GameOver& p_gameOver) { p_gameOver.handleEvents(this->isRunning, this->keyState, this->nextState); },
     }, state);
 }
 
@@ -84,7 +84,7 @@ void Game::render() {
         [](state::Empty) {},
         [this](state::Menu& p_menu) { p_menu.render(this->sdl); },
         [this](state::Gameplay& p_gameplay) { p_gameplay.render(this->sdl); },
-        [](state::GameOver& p_gameOver) { p_gameOver.render(); },
+        [this](state::GameOver& p_gameOver) { p_gameOver.render(this->sdl); },
     }, state);
 
     SDL_RenderPresent(sdl.getRenderer());
