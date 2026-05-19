@@ -5,12 +5,13 @@ state::GameOver::GameOver() : isFilled(0) {};
 
 void state::GameOver::handleEvents(bool& p_isRunning, const bool* p_keyState, state::Type& p_nextState) {
     bool is_escapeDown{p_keyState[SDL_SCANCODE_ESCAPE]};
+    bool is_spaceDown{p_keyState[SDL_SCANCODE_SPACE]};
 
     SDL_Event ev;
     while (SDL_PollEvent(&ev)) {
         if (ev.type == SDL_EVENT_QUIT) p_isRunning = false;
         else if (ev.type == SDL_EVENT_KEY_DOWN) {
-            if (ev.key.key == SDLK_ESCAPE && !is_escapeDown) {
+            if ((ev.key.key == SDLK_ESCAPE && !is_escapeDown) || (ev.key.key == SDLK_SPACE && !is_spaceDown)) {
                 p_nextState = state::Type::Menu;
             }
         }
