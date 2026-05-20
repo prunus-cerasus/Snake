@@ -2,7 +2,10 @@
 #define GAME_HPP
 
 #include <cstdint>
+#include <string_view>
+#include <vector>
 #include <variant>
+#include <filesystem>
 
 #include "core/SDLState.hpp"
 #include "core/state/Empty.hpp"
@@ -12,7 +15,7 @@
 #include "core/state/Type.hpp"
 
 struct Game {
-    Game();
+    Game(const std::vector<std::string_view>& p_args);
     Game(const Game&) = delete;
     Game(Game&&) = delete;
     Game& operator=(const Game&) = delete;
@@ -27,6 +30,9 @@ struct Game {
     void render();
 
     void loop();
+
+    const std::vector<std::string_view>& args;
+    std::filesystem::path assets_path;
 
     SDLState sdl;
 

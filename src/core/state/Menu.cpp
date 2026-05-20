@@ -5,8 +5,8 @@
 
 #include <iostream>
 
-state::Menu::Menu(TTF_TextEngine* p_textEngine) : isFilled(false), font(nullptr), text(nullptr) {
-    font = TTF_OpenFont("assets/Bona_Nova_SC/BonaNovaSC-Regular.ttf", 40.0f);
+state::Menu::Menu(const std::filesystem::path& p_assets_path, TTF_TextEngine* p_textEngine) : isFilled(false), font(nullptr), text(nullptr) {
+    font = TTF_OpenFont((p_assets_path / "Bona_Nova_SC" / "BonaNovaSC-Regular.ttf").c_str(), 40.0f);
     if (font == nullptr) {
         std::cerr << "SDL_ttf Error: " << SDL_GetError() << '\n';
         return;

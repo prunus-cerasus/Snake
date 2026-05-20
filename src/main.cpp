@@ -1,17 +1,19 @@
 #include <iostream>
 #include <cstdint>
-#include <span>
+#include <vector>
+#include <string_view>
 
 #include "core/Game.hpp"
 
-int main() {
-    Game game;
+int main(int32_t argc, char** argv) {
+    std::vector<std::string_view> args(argv, argv + argc);
+
+    Game game(args);
     if (!game.sdl.valid()) {
         std::cerr << "Fatal Error:"  << SDL_GetError() << '\n';
         return 1;
     }
 
-    game.changeState(state::Menu(game.sdl.getTextEngine()));
     game.loop();
     return 0;
 }

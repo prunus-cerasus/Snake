@@ -1,3 +1,4 @@
+#include <iostream>
 #include <cstdint>
 #include <variant>
 
@@ -11,14 +12,16 @@ template<class... Ts> struct overloads : Ts... { using Ts::operator()...; };
 // Unneeded in C++20
 template<class... Ts> overloads(Ts...) -> overloads<Ts...>;
 
-Game::Game() :
+Game::Game(const std::vector<std::string_view>& p_args) :
+    args(p_args),
+    assets_path(std::filesystem::path(args[0]).parent_path()/"assets"),
     isRunning(true),
     deltaTime(0L),
     currentTime(0L),
     previousTime(0L),
     keyState(SDL_GetKeyboardState(&numkeys)),
-    state(state::Empty{})
-    {
+    state(state::Menu(assets_path, sdl.getTextEngine())) {
+    
     if (sdl.valid()) {
         SDL_SetRenderDrawColor(sdl.getRenderer(), 0, 0, 0, 0xff);
         SDL_RenderClear(sdl.getRenderer());
@@ -39,7 +42,7 @@ void Game::updateState() {
             break;
         }
         case state::Type::Menu: {
-            state = state::Menu(sdl.getTextEngine());
+            state = state::Menu(assets_path, sdl.getTextEngine());
             break;
         }
         case state::Type::Gameplay: {

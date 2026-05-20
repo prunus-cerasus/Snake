@@ -2,6 +2,7 @@
 #define MENU_HPP
 
 #include <variant>
+#include <filesystem>
 
 #include "core/SDLState.hpp"
 #include "core/state/Type.hpp"
@@ -9,7 +10,7 @@
 namespace state {
     struct Menu {
 
-        Menu(TTF_TextEngine* p_textEngine);
+        Menu(const std::filesystem::path& p_assets_path, TTF_TextEngine* p_textEngine);
         Menu(const Menu&) = delete;
         Menu& operator=(const Menu&) = delete;
         Menu(Menu&& p_other) noexcept;
