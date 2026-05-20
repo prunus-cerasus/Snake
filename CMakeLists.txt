@@ -16,3 +16,8 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${BASE_OUT}/staticlib")
 
 add_subdirectory(lib)
 add_subdirectory(src)
+
+file(
+  COPY "${CMAKE_SOURCE_DIR}/assets"
+  DESTINATION "${BASE_OUT}"
+)

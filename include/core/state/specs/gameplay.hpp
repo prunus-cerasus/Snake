@@ -9,8 +9,8 @@ namespace state::specs::gameplay {
     constexpr int32_t WIDTH {40};
     constexpr int32_t HEIGHT {30};
     constexpr float CELL_SIDE {20.0f};
-    constexpr int64_t MOVEMENT_TIME {60'000'000};
-    constexpr int32_t PLAYERSIZE_PER_ROCK {1};
+    constexpr int64_t MOVEMENT_TIME {40'000'000};
+    constexpr int32_t PLAYERSIZE_PER_ROCK {4};
     constexpr int32_t MAX_RANDOM_LOOP_SIZE {256};
 
     constexpr SDL_Color BG_COLOR {

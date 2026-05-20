@@ -39,7 +39,7 @@ void Game::updateState() {
             break;
         }
         case state::Type::Menu: {
-            state = state::Menu();
+            state = state::Menu(sdl.getTextEngine());
             break;
         }
         case state::Type::Gameplay: {

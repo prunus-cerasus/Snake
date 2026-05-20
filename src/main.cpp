@@ -1,4 +1,6 @@
 #include <iostream>
+#include <cstdint>
+#include <span>
 
 #include "core/Game.hpp"
 
@@ -9,7 +11,7 @@ int main() {
         return 1;
     }
 
-    game.changeState(state::Menu());
+    game.changeState(state::Menu(game.sdl.getTextEngine()));
     game.loop();
     return 0;
 }
