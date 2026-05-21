@@ -1,19 +1,39 @@
 add_library(project_deps INTERFACE)
 
 include(FetchContent)
+
+set(FETCHCONTENT_QUIET OFF CACHE BOOL "" FORCE)
+
 FetchContent_Declare(
     SDL3
     GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
     GIT_TAG release-3.4.8
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SDL3"
+    GIT_SHALLOW TRUE
 )
+
+set(SDL_TESTS OFF CACHE BOOL "" FORCE)
+set(SDL_DOCS OFF CACHE BOOL "" FORCE)
+set(SDL_INSTALL OFF CACHE BOOL "" FORCE)
+set(SDL_GPU OFF CACHE BOOL "" FORCE)
+set(SDL_CAMERA OFF CACHE BOOL "" FORCE)
+set(SDL_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(SDL_AUDIO OFF CACHE BOOL "" FORCE)
+set(SDL_JOYSTICK OFF CACHE BOOL "" FORCE)
+set(SDL_HAPTIC OFF CACHE BOOL "" FORCE)
+set(SDL_HIDAPI OFF CACHE BOOL "" FORCE)
+set(SDL_VULKAN OFF CACHE BOOL "" FORCE)
 
 FetchContent_Declare(
     SDL3_ttf
     GIT_REPOSITORY https://github.com/libsdl-org/SDL_ttf.git
     GIT_TAG release-3.2.0
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SDL3_ttf"
+    GIT_SHALLOW TRUE
+    GIT_SUBMODULES_COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive --depth 1
 )
+
+set(SDLTTF_SAMPLES OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(SDL3)
 FetchContent_MakeAvailable(SDL3_ttf)
