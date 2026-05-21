@@ -50,7 +50,7 @@ void Game::updateState() {
             break;
         }
         case state::Type::GameOver: {
-            state = state::GameOver();
+            state = state::GameOver(assets_path, sdl.getTextEngine());
             break;
         }
     }
