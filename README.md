@@ -39,6 +39,7 @@ Modern C++20 compiler and cmake are required.
 Download the official installers here:
 - [Microsoft Visual Studio Community](https://visualstudio.microsoft.com/downloads/)
 - [CMake](https://cmake.org)
+- [Git](https://gitforwindows.org)
 
 #### Configure and Compile
 Run the following lines of code from project's root directory:
@@ -90,18 +91,18 @@ From project's root directory, you would launch the executable with the followin
 
 #### Install Toolchain Prerequisites
 
-Modern C++20 compiler, CMake and a build system like GNU/Make are needed:
+Modern C++20 compiler, CMake, a build system like GNU/Make and git are needed:
 ```bash
 # On Ubuntu based distros
 sudo apt update
-sudo apt install g++ cmake make
+sudo apt install g++ cmake make git
 
 # On Arch based distros
 sudo pacman -Syu
-sudo pacman -S gcc cmake make
+sudo pacman -S gcc cmake make git
 
 # On Fedora based distros
-sudo dnf install gcc-c++ cmake make
+sudo dnf install gcc-c++ cmake make git
 ```
 #### Configure and Compile
 Run the following lines of code from project's root directory:
