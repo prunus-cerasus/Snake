@@ -2,23 +2,30 @@
 #include "core/specs.hpp"
 #include "core/state/Menu.hpp"
 #include "core/state/Type.hpp"
+#include "core/state/specs/menu.hpp"
 
 #include <iostream>
 
 state::Menu::Menu(const std::filesystem::path& p_assets_path, TTF_TextEngine* p_textEngine) : isFilled(false), font(nullptr), text(nullptr) {
-    font = TTF_OpenFont((p_assets_path / "Bona_Nova_SC" / "BonaNovaSC-Regular.ttf").c_str(), 40.0f);
+    font = TTF_OpenFont((p_assets_path / specs::menu::font).c_str(), 40.0f);
     if (font == nullptr) {
         std::cerr << "SDL_ttf Error: " << SDL_GetError() << '\n';
         return;
     }
 
-    text = TTF_CreateText(p_textEngine, font, "press SPACE to start", 0);
+    text = TTF_CreateText(p_textEngine, font, specs::menu::message, 0);
     if (text == nullptr) {
         std::cerr << "SDL_ttf Error: " << SDL_GetError() << '\n';
         return;
     }
 
-    TTF_SetTextColor(text, 0xff, 0xff, 0xff, 0xff);
+    TTF_SetTextColor(
+        text,
+        specs::menu::TEXT_COLOR.r,
+        specs::menu::TEXT_COLOR.g,
+        specs::menu::TEXT_COLOR.b,
+        specs::menu::TEXT_COLOR.a
+    );
 }
 
 state::Menu::Menu(Menu&& p_other) noexcept : isFilled(p_other.isFilled), font(p_other.font), text(p_other.text) {
@@ -66,13 +73,18 @@ void state::Menu::logic() {
 
 void state::Menu::render(SDLState& p_sdl) {
     isFilled = true;
-    SDL_SetRenderDrawColor(p_sdl.getRenderer(), 0x40, 0x40, 0xa0, 0xff);
-    // SDL_RenderClear(p_sdl.getRenderer());
+    SDL_SetRenderDrawColor(
+        p_sdl.getRenderer(),
+        specs::menu::BG_COLOR.r,
+        specs::menu::BG_COLOR.g,
+        specs::menu::BG_COLOR.b,
+        specs::menu::BG_COLOR.a
+    );
     SDL_FRect dest{
         .x = 0,
         .y = 0,
-        .w = specs::LOGICAL_WIDTH,
-        .h = specs::LOGICAL_HEIGHT,
+        .w = ::specs::LOGICAL_WIDTH,
+        .h = ::specs::LOGICAL_HEIGHT,
     };
 
     SDL_RenderFillRect(p_sdl.getRenderer(), &dest);
@@ -83,8 +95,8 @@ void state::Menu::render(SDLState& p_sdl) {
         TTF_GetTextSize(text, &text_width, &text_height);
 
         TTF_DrawRendererText(text, static_cast<float>(
-            specs::LOGICAL_WIDTH - text_width)*0.5f,
-            static_cast<float>(specs::LOGICAL_HEIGHT - text_height)*0.5f
+            ::specs::LOGICAL_WIDTH - text_width)*0.5f,
+            static_cast<float>(::specs::LOGICAL_HEIGHT - text_height)*0.5f
         );
     }
 }
