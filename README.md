@@ -2,7 +2,7 @@
 
 You play as a snake, whose main objective
 is eating apples and growing in size!
-But be aware of the rocks --- they are bad for the stomach!
+But be aware of the rocks &mdash; they are bad for the stomach!
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](https://opensource.org)
 [![C++](https://img.shields.io/badge/Language-C%2B%2B-00599C)](https://cppreference.com)
