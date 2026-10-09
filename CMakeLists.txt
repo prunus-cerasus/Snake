@@ -3,21 +3,25 @@ project(app LANGUAGES CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS On)
 
-if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build." FORCE)
-endif()
-
 math(EXPR SYSTEM_BITNESS "${CMAKE_SIZEOF_VOID_P} * 8")
-cmake_path(SET BASE_OUT "${CMAKE_SOURCE_DIR}/bin/${CMAKE_SYSTEM_NAME}${SYSTEM_BITNESS}/${CMAKE_BUILD_TYPE}")
+
+set(BASE_OUT "${CMAKE_SOURCE_DIR}/bin/${CMAKE_SYSTEM_NAME}${SYSTEM_BITNESS}/$<CONFIG>")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${BASE_OUT}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BASE_OUT}/lib")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${BASE_OUT}/staticlib")
 
+if (MSVC)
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BASE_OUT}")
+endif()
+
 add_subdirectory(lib)
 add_subdirectory(src)
 
-file(
-  COPY "${CMAKE_SOURCE_DIR}/assets"
-  DESTINATION "${BASE_OUT}"
+add_custom_target(copy_assets ALL
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_SOURCE_DIR}/assets"
+    "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets"
+  COMMENT "Syncing game assets to build directory..."
 )
+
