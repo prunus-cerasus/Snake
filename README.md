@@ -74,7 +74,7 @@ brew install cmake
 Run the following lines of code from project's root directory:
 ```bash
 cmake -B build
-cmake --build build
+cmake --build build --config Release
 ```
 
 #### Run
@@ -108,7 +108,7 @@ sudo dnf install gcc-c++ cmake make git
 Run the following lines of code from project's root directory:
 ```bash
 cmake -B build
-cmake --build build
+cmake --build build --config Release
 ```
 
 #### Run
