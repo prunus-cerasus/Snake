@@ -26,7 +26,8 @@ But be aware of the rocks &mdash; they are bad for the stomach!
 This project implements modern C++20 design patterns, safe resource management and clean architectural separation.
 
 - **Type-Safe State Machine:** The game loops through 3 distinct states (`Menu`, `Gameplay`, `GameOver`). Instead of raw pointers or virtual inheritance, the state machine leverages **`std::variant`** and **`std::visit`** for type-safe, compile-time polymorphism.
-- **Strict RAII Lifecycle:** All SDL3 subsystems, windows, and renderer lifecycles are strictly bound to object lifetimes. The initialization and cleanup are fully encapsulated within a custom **`SDLState`** abstraction class, preventing memory and resource leaks.
+- **Cache-friendly Entity Object pooling:** To handle real-time entity creation and destruction without incurring runtime allocation overhead, the game tracks objects inside a contiguous flat vector. When an apple or rock is consumed, components are dynamically activated or flagged as `Inactive` and recycled via a tracking array, completely bypassing memory fragmantation and cache misses.
+- **Strict RAII Lifecycle:** All SDL3 subsystems and object lifecycles are strictly bound to class instance scopes. Their creation and destruction are fully encapsulated within a custom **`SDLState`** abstraction layer, ensuring leak-free resource release on exit.
 - **Modern Cross-Platform Build Pipeline:** Engineered with a platform-independent CMake system that automatically routes builds into structured target directories based on architecture (`bin/Windows64`, `bin/Linux64`, `bin/Darwin64`).
 
 ## ⚡ Building the project
