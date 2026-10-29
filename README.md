@@ -8,6 +8,8 @@ But be aware of the rocks &mdash; they are bad for the stomach!
 [![C++](https://img.shields.io/badge/Language-C%2B%2B-00599C)](https://cppreference.com)
 [![SDL3](https://img.shields.io/badge/Library-SDL3-008080)](https://libsdl.org)
 
+![Snake showcase](assets/showcase.gif)
+
 ## Implementation details
 
 ### 📁 Project Structure
