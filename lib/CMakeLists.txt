@@ -3,6 +3,8 @@ add_library(project_deps INTERFACE)
 include(FetchContent)
 
 set(FETCHCONTENT_QUIET OFF CACHE BOOL "" FORCE)
+set(FETCHCONTENT_BASE_DIR "${CMAKE_SOURCE_DIR}/.cmake_dependencies_cache" CACHE PATH "" FORCE)
+set(FETCHCONTENT_UPDATES_DISCONNECTED ON CACHE BOOL "" FORCE)
 
 FetchContent_Declare(
     SDL3
@@ -29,9 +31,12 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/libsdl-org/SDL_ttf.git
     GIT_TAG release-3.2.0
     SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/SDL3_ttf"
-    GIT_SHALLOW TRUE
-    GIT_SUBMODULES_COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive --depth 1
+   GIT_SHALLOW TRUE
+   GIT_SUBMODULES_COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive --depth 1
 )
+
+set (SDLTTF_VENDORED ON CACHE BOOL "" FORCE)
+set (SDLTTF_HARFBUZZ ON CACHE BOOL "" FORCE)
 
 set(SDLTTF_SAMPLES OFF CACHE BOOL "" FORCE)
 

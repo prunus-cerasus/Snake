@@ -6,5 +6,21 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     CXX_EXTENSIONS Off
 )
 
+if(APPLE)
+  set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
+    MACOSX_BUNDLE TRUE
+  )
+  set(ASSET_DEST_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_PROJECT_NAME}.app/Contents/Resources")
+endif()
+
+if(WIN32)
+  if(MSVC)
+    target_link_options(${CMAKE_PROJECT_NAME} PRIVATE "$<$<CONFIG:Release>:/SUBSYSTEM:WINDOWS>")
+  else()
+    target_link_options(${CMAKE_PROJECT_NAME} PRIVATE "$<$<CONFIG:Release>:-mwindows>" "-static-libgcc" "-static-libstdc++" "-static")
+  endif()
+endif()
+
+
 add_subdirectory(core)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}::core)

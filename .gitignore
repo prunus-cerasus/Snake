@@ -2,9 +2,12 @@
 .vs/
 .idea
 build/
+build-win/
+build-mac/
 cmake-build-*/
 bin/
 CMakeUserPresets.json
 
+.cmake_dependencies_cache/
 lib/*
 !lib/CMakeLists.txt
