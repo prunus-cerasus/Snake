@@ -193,6 +193,7 @@ void state::Gameplay::detectCollision(state::Type& p_nextState) {
                 }
 
                 default:
+                { }
             }
         }
     }

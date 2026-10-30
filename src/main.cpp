@@ -1,3 +1,5 @@
+#include <SDL3/SDL_main.h>
+
 #include <iostream>
 #include <cstdint>
 #include <vector>
@@ -5,7 +7,7 @@
 
 #include "core/Game.hpp"
 
-int main(int32_t argc, char** argv) {
+int main(int argc, char* argv[]) {
     std::vector<std::string_view> args(argv, argv + argc);
 
     Game game(args);
