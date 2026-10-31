@@ -20,6 +20,7 @@ But be aware of the rocks &mdash; they are bad for the stomach!
 ├── include/ # C++ Project header files (.hpp)
 ├── lib/     # Third-party libraries
 ├── src/     # Source files (.cpp)
+├── cmake/   # CMake includes
 └── CMakeLists.txt
 ```
 
@@ -55,10 +56,10 @@ cmake --build build --config Release
 From project's root directory, you would launch the executable with the following:
 ```powershell
 # For 64-bit systems
-.\bin\Windows64\Release\app.exe
+.\bin\Windows64\Release\Snake.exe
 
 # For 32-bit systems
-.\bin\Windows32\Release\app.exe
+.\bin\Windows32\Release\Snake.exe
 ```
 
 ### MacOS
@@ -83,11 +84,7 @@ cmake --build build --config Release
 #### Run
 From project's root directory, you would launch the executable with the following:
 ```bash
-# For 64-bit systems
-./bin/Darwin64/Release/app
-
-# For 32-bit systems
-./bin/Darwin32/Release/app
+open ./bin/Darwin64/Release/Snake.app
 ```
 
 ### Linux
@@ -118,10 +115,10 @@ cmake --build build --config Release
 From project's root directory, you would launch the executable with the following:
 ```bash
 # For 64-bit systems
-./bin/Linux64/Release/app
+./bin/Linux64/Release/Snake
 
 # For 32-bit systems
-./bin/Linux32/Release/app
+./bin/Linux32/Release/Snake
 ```
 
 ## 📄 License
