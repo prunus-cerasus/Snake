@@ -3,7 +3,7 @@ if(UNIX)
   set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
   if(APPLE)
-    set(CMAKE_INSTALL_RPATH "@executable_path/lib")
+    set(CMAKE_INSTALL_RPATH "@executable_path/../Frameworks")
   else()
     set(CMAKE_INSTALL_RPATH "\$ORIGIN/lib")
   endif()

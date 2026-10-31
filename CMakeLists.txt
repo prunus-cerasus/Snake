@@ -18,14 +18,22 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${BASE_OUT}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BASE_OUT}/lib")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${BASE_OUT}/staticlib")
 
-if (MSVC)
+if(APPLE)
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BASE_OUT}/${CMAKE_PROJECT_NAME}.app/Contents/Frameworks")
+  set(CMAKE_FRAMEWORK_OUTPUT_DIRECTORY "${BASE_OUT}/${CMAKE_PROJECT_NAME}.app/Contents/Frameworks")
+endif()
+
+if(MSVC)
   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BASE_OUT}")
+endif()
+
+set(ASSET_DEST_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+if(APPLE)
+  set(ASSET_DEST_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_PROJECT_NAME}.app/Contents/Resources")
 endif()
 
 add_subdirectory(lib)
 add_subdirectory(src)
-
-set(ASSET_DEST_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
 add_custom_target(copy_assets ALL
   COMMAND ${CMAKE_COMMAND} -E copy_directory
